@@ -3,12 +3,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using PasswordVault.Core.BLL.Services;
+using PasswordVault.Core.DAL;
 
 namespace PasswordVault.Web.Controllers
 {
     [Route("api/[controller]")]
     public class SampleDataController : Controller
     {
+        private readonly IIdentityService _identityService;
+        public SampleDataController(IIdentityService identityService)
+        {
+            _identityService = identityService;
+        }
+
+        [HttpGet("Test")]
+        public string Test()
+        {
+            return "test";
+        }
+
         private static string[] Summaries = new[]
         {
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"

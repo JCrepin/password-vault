@@ -4,9 +4,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SpaServices.Webpack;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using PasswordVault.Core.BLL.Services;
+using PasswordVault.Core.DAL;
+using PasswordVault.Core.Models.Identity;
 
 namespace PasswordVault.Web
 {
@@ -22,6 +27,20 @@ namespace PasswordVault.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // Entity Framework / Identity
+            var connectionString = Configuration.GetConnectionString("DefaultConnection");
+            services.AddDbContext<AppDbContext>(options =>
+                options.UseSqlServer(connectionString, sqlOptions =>
+                    sqlOptions.MigrationsAssembly("PasswordVault.Core"))
+            );
+            // TODO: Replace this with JWT
+            services.AddIdentity<AppUser, AppUserRole>()
+                .AddEntityFrameworkStores<AppDbContext>()
+                .AddDefaultTokenProviders();
+
+            //services.AddTransient<AppDbContext, AppDbContext>();
+            services.AddTransient<IIdentityService, IdentityService>();
+
             services.AddMvc();
         }
 
@@ -42,6 +61,8 @@ namespace PasswordVault.Web
             }
 
             app.UseStaticFiles();
+            //app.UseIdentity();
+            app.UseAuthentication();
 
             app.UseMvc(routes =>
             {
